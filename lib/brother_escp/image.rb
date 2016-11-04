@@ -1,12 +1,16 @@
 require 'chunky_png'
 require 'logger'
+require 'brother_escp/image_converter'
 
 class BrotherEscp::Image
   
   attr_reader :image
+  attr_reader :converter
   
-  def initialize(file_name:)
+  def initialize(file_name:, converter: :single_density)
     load(file_name: file_name)
+    
+    load_converter(converter)
   end
   
   def inspect
@@ -21,54 +25,37 @@ class BrotherEscp::Image
   end
   
   def convert
-    @lines = []
-    if (remain = height % 8) > 0
-      logger.warn "the height (#{height}) is not a multiple if 8, the last #{remain} lines will be ignored."
-    end
-    0.upto((height / 8) - 1) do |line_index|
-      line = []
-      0.upto(width - 1) do |x|
-        bits = ''
-        0.upto(7) do |y_offset|
-          y = (line_index * 8) + y_offset
-          bits << convert_pixel_to_bw(@image[x,y])
-        end
-        line << bits.to_i(2)
-      end
-      @lines << line
-    end
+    @lines = converter.convert(image: image)
     self
   end
   
   def to_escp
-    @lines.map { |line| convert_line_to_escp(line) }.join(BrotherEscp::Sequence.crlf)
+    @lines.map { |line| convert_line_to_escp(line) }.join
   end
   
   private
   
-  def convert_line_to_escp(line)
-    n1 = line.length % 256
-    n2 = line.length / 256
-    data = [ 0x1b, 0x2a, 0, n1, n2 ]
-    data += line
-    data.pack('C*')
+  def load_converter(converter)
+    @converter = case converter
+    when :single_density
+      BrotherEscp::ImageConverter.new(density_code: 0, line_height_in_bytes: 1)
+    when :high_density
+      BrotherEscp::ImageConverter.new(density_code: 39, line_height_in_bytes: 3)
+    when :higher_density
+      BrotherEscp::ImageConverter.new(density_code: 72, line_height_in_bytes: 6)
+    else
+      msg = "Unknown converter (#{converter})"
+      logger.fatal msg
+      raise msg
+    end
   end
   
-  def convert_pixel_to_bw(pixel)
-    r, g, b, a =
-      ChunkyPNG::Color.r(pixel),
-      ChunkyPNG::Color.g(pixel),
-      ChunkyPNG::Color.b(pixel),
-      ChunkyPNG::Color.a(pixel)
-    px = (r + g + b) / 3
-
-    logger.warn "PNG images with alpha are not supported." unless a == 255
-
-    px > 128 ? '0' : '1'
+  def convert_line_to_escp(line)
+    converter.convert_line_to_escp(line: line) + BrotherEscp::Sequence.crlf
   end
   
   def logger
-    @logger ||= Logger.new(STDERR)
+    BrotherEscp.logger
   end
 
   def load(file_name:)
