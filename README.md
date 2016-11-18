@@ -25,7 +25,13 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+
+TODO
+
+
+## Documentation
+
+Generate the documentation with yard
 
 ## Development
 
