@@ -1,6 +1,6 @@
 # BrotherEscp
 
-*WORK IN PROGRESS - NOT EVEN ALPHA*
+*WORK IN PROGRESS*
 
 Library to allow printing on Brother label printer, tested with TD-4000 model.
 
@@ -25,9 +25,38 @@ Or install it yourself as:
 
 ## Usage
 
+```
+  
+  require 'brother_escp'
 
-TODO
+  # Create a new document to send to the printer
+  doc = BrotherEscp::Document.new
 
+  # Use predefined sequences
+  doc.sequence :LANDSCAPE_OFF
+  
+  # Use helper to setup some printing settings
+  doc.page_length = 50
+
+  # Print some text
+  doc.write "Hello, world"
+
+  # Add an image
+  doc.image(file_name: 'examples/small.png', density: :high_density)
+
+  # Add a form feed
+  doc.sequence(:CTL_FF)
+
+  # Raw data to be sent to the printer
+  doc.to_escp
+
+  # Dump the data in readable hexadecimal form
+  doc.inspect
+  
+  # Raw data encoded in Base64
+  doc.to_base64
+
+```
 
 ## Documentation
 
