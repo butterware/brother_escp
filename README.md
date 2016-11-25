@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/butterware/brother_escp.svg?branch=master)](https://travis-ci.org/butterware/brother_escp)
+
 # BrotherEscp
 
 *WORK IN PROGRESS*
@@ -5,7 +7,6 @@
 Library to allow printing on Brother label printer, tested with TD-4000 model.
 
 Allow printing of text and images.
-
 
 ## Installation
 
