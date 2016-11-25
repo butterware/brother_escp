@@ -1,5 +1,5 @@
-/.bundle/
 /.yardoc
+/.bundle/
 /Gemfile.lock
 /_yardoc/
 /coverage/
@@ -8,3 +8,4 @@
 /spec/reports/
 /tmp/
 examples/test.rb
+/.idea/

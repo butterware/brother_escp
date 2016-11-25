@@ -8,11 +8,11 @@ Gem::Specification.new do |spec|
   spec.name          = 'brother_escp'
   spec.version       = BrotherEscp::VERSION
   spec.authors       = ['David Bourguignon']
-  spec.email         = ['tal.bourguignon@laposte.net']
+  spec.email         = ['david@butterware.co.uk']
 
   spec.summary       = 'Print text and images to a Brother label printer with ESC/P.'
   spec.description   = 'Print text and images to a Brother label printer with ESC/P.'
-  spec.homepage      = 'https://github.com/dbourguignon/brother_escp'
+  spec.homepage      = 'https://github.com/butterware/brother_escp'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
