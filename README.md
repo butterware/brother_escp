@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/butterware/brother_escp.svg?branch=master)](https://travis-ci.org/butterware/brother_escp)
+[![Gem Version](https://badge.fury.io/rb/brother_escp.svg)](https://badge.fury.io/rb/brother_escp)
 
 # BrotherEscp
 
