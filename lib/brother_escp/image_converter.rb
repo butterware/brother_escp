@@ -34,13 +34,13 @@ module BrotherEscp
     # @param image [ChunkyPNG::Image] Image to convert
     # @return [Array] return an array of array, one array for each line, with one element for each byte
     def convert(image:)
-      check_image(image: image)
-      lines = []
-      line_count = (image.height / line_height_in_pixels)
-      # BrotherEscp.logger.debug "convert, line_count = #{line_count}"
+      lines      = []
+      line_count = line_count(image: image)
+      BrotherEscp.logger.debug "convert, line_count = #{line_count}"
       0.upto(line_count - 1) do |line_index|
         lines << create_line(image: image, line_index: line_index)
       end
+      BrotherEscp.logger.debug "convert, size by line: #{lines.map(&:size)}, total: #{lines.map(&:size).inject(:+)}"
       lines
     end
 
@@ -57,12 +57,14 @@ module BrotherEscp
 
     private
 
-    def check_image(image:)
-      remain = image.height % line_height_in_pixels
-      BrotherEscp.logger.warn { "the height (#{image.height}) is not a multiple if #{line_height_in_pixels}, the last #{remain} lines will be ignored." } if remain.positive?
+    def line_count(image:)
+      line_count = (image.height / line_height_in_pixels)
+      line_count += 1 if (image.height % line_height_in_pixels).nonzero?
+      line_count
     end
 
     def create_line(image:, line_index:)
+      BrotherEscp.logger.debug "create_line: #{line_index}"
       line = []
       0.upto(image.width - 1) do |x|
         0.upto(line_height_in_bytes - 1) do |byte_offset|
@@ -76,11 +78,19 @@ module BrotherEscp
       bits = String.new('')
       0.upto(7) do |y_offset|
         y = (line_index * line_height_in_pixels) + (byte_offset * 8) + y_offset
-        bit = convert_pixel_to_bw(image[x, y])
+        bit = convert_point(image: image, x: x, y: y)
         # BrotherEscp.logger.debug "convert, line = #{line_index}, byte_offset = #{byte_offset}, x = #{x}, y = #{y}, bit: #{bit}"
         bits << bit
       end
       bits.to_i(2)
+    end
+
+    def convert_point(image:, x:, y:)
+      if y >= image.height
+        '0'
+      else
+        convert_pixel_to_bw(image[x, y])
+      end
     end
 
     def convert_pixel_to_bw(pixel)
@@ -92,7 +102,7 @@ module BrotherEscp
       # BrotherEscp.logger.debug "convert_pixel_to_bw: #{[r, g, b, a]}, px = #{px}"
       BrotherEscp.logger.warn 'PNG images with alpha are not supported.' unless a == 255
 
-      px > 128 ? '0' : '1'
+      px > 230 ? '0' : '1'
     end
   end
 end
